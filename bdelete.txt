@@ -2,32 +2,134 @@
 #   to delete git branches by pattern add this function to your bash config ~/.bashrc
 #   then close and reopen your terminal
 #   usage : bdelete [pattern]
+
 bdelete(){
+#cool colors
+if [[ $- == *i* ]] then
+# variables
+_BLACK=$(tput setaf 0)
+_RED=$(tput setaf 1)
+_GREEN=$(tput setaf 2)
+_YELLOW=$(tput setaf 3)
+_BLUE=$(tput setaf 4)
+_MAGENTA=$(tput setaf 5)
+_CYAN=$(tput setaf 6)
+_WHITE=$(tput setaf 7)
+_RESET=$(tput sgr0)
+_BOLD=$(tput bold)
+
+# inline helper with reset
+echo_black_reset() {
+  echo "${_BLACK}$1${_RESET}"
+}
+
+echo_red_reset() {
+  echo "${_RED}$1${_RESET}"
+}
+
+echo_green_reset() {
+  echo "${_GREEN}$1${_RESET}"
+}
+
+echo_yellow_reset() {
+  echo "${_YELLOW}$1${_RESET}"
+}
+
+echo_blue_reset() {
+  echo "${_BLUE}$1${_RESET}"
+}
+
+echo_magenta_reset() {
+  echo "${_MAGENTA}$1${_RESET}"
+}
+
+echo_cyan_reset() {
+  echo "${_CYAN}$1${_RESET}"
+}
+
+echo_white_reset() {
+  echo "${_WHITE}$1${_RESET}"
+}
+
+echo_bold_reset() {
+  echo "${_BOLD}$1${_RESET}"
+}
+
+# inline helper
+echo_black(){
+  echo "${_BLACK}$1"
+}
+
+echo_red(){
+  echo "${_RED}$1"
+}
+
+echo_green(){
+  echo "${_GREEN}$1"
+}
+
+echo_yellow(){
+  echo "${_YELLOW}$1"
+}
+
+echo_blue(){
+  echo "${_BLUE}$1"
+}
+
+echo_magenta(){
+  echo "${_MAGENTA}$1"
+}
+
+echo_cyan(){
+  echo "${_CYAN}$1"
+}
+
+echo_white(){
+  echo "${_WHITE}$1"
+}
+
+echo_bold(){
+  echo "${_BOLD}$1"
+}
+
+echo_reset(){
+  echo "${_RESET}"
+}
+
+fi
+
+#the actual logic
+    echo_bold
+
     if [ $# -eq 0 ] ; then
-	echo 'no branch name specified'
-	return 1
+	echo_red ' no branch name specified'
+	return  1
     fi
 
-    branches=$(git branch -l | grep -v $(git branch --show-current) | grep "$1")
+    CURRENT=$(git branch --show-current)
+    echo_blue " excluding current branch: ${_GREEN}${CURRENT}\n"
+    echo_blue " excluding these branches if they exist: ${_GREEN}master main dev staging\n"
+
+    branches=$(git branch -l | grep -v -e "${CURRENT}$" -e master$ -e main$ -e dev$ -e staging | grep "$1")
 
     if [ -z "$branches" ] ; then
-    	echo 'no branches found'
-	return 0
+    	echo_yellow ' no branches found'
+	return  0
     fi
 	
     if [ -n "$branches" ] ; then
-	tput setaf 1
-	echo -e "$branches \n"
-	tput sgr0  
-
-	echo "are you sure you want to delete these branches ? y/n"
+	echo_blue " branches found:\n"
+	echo_red  "$branches \n"
+	echo_white "are you sure you want to delete these branches ? ${_GREEN}y${_WHITE}/${_RED}n"
+	echo_white
 	read arg
     fi	
 
     if [ "$arg" != "y" ] ; then
-	echo 'aborted'
-	return 0
+	echo_red ' aborted'
+	return  0
     fi
 
+    echo_cyan
     git branch -D $(git branch -l | grep -v $(git branch --show-current) | grep "$1")
 }
